@@ -9,7 +9,7 @@ use Faker\Factory;
 
 class ProductFixtures extends Fixture
 {
-    public function load(ObjectManager $manager): void
+    public function load(ObjectManager $manager): void //php bin/console doctrine:fixtures:load
     {
         $faker = Factory::create('en_US');
 
@@ -21,7 +21,10 @@ class ProductFixtures extends Fixture
         $batteries = ['4000 mAh', '4500 mAh', '5000 mAh', '6000 mAh', '42 Wh', '60 Wh'];
         $cameras = ['12 MP', '48 MP', '50 MP', '64 MP', '108 MP', '12 MP + 8 MP ultrawide'];
         $screenSizes = ['5.8"', '6.1"', '6.5"', '6.7"', '13.3"', '14"', '27"'];
-        
+        $nb = $faker->numberBetween(1, 3);
+        /** @var string $description */
+        $description = $faker->paragraphs($nb, true);
+
         $presets = [
             [
                 'name' => 'Nova Phone X',
@@ -105,7 +108,7 @@ class ProductFixtures extends Fixture
                 ->setName($name)
                 ->setBrand((string) $brand)
                 ->setModel($modelWord)
-                ->setDescription((string) $faker->paragraphs((string) $faker->numberBetween(1, 3), true))
+                ->setDescription($description)
                 ->setPrice($faker->boolean(90) ? $price : null)
                 ->setCurrency((string) $faker->randomElement(['USD', 'EUR', 'GBP', null]))
                 ->setReleaseDate($releasedAt)
