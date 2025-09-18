@@ -93,7 +93,7 @@ class ProductFixtures extends Fixture
             $brand = $faker->randomElement($brands);
             $modelWord = ucfirst($faker->bothify('##?')); // ex: "42K"
             $family = $faker->randomElement(['Phone', 'Tab', 'Watch', 'Book', 'Display']);
-            $name = sprintf('%s %s %s', $brand, $family, $faker->randomElement(['Air', 'Plus', 'Pro', 'Max', 'Mini', 'Ultra']));
+            $name = sprintf('%s %s %s',(string) $brand,(string) $family,(string) $faker->randomElement(['Air', 'Plus', 'Pro', 'Max', 'Mini', 'Ultra']));
 
             $price = number_format($faker->randomFloat(2, 59, 2499), 2, '.', '');
 
@@ -103,19 +103,19 @@ class ProductFixtures extends Fixture
 
             $product = (new Product())
                 ->setName($name)
-                ->setBrand($brand)
+                ->setBrand((string) $brand)
                 ->setModel($modelWord)
-                ->setDescription($faker->paragraphs($faker->numberBetween(1, 3), true)) // anglais
+                ->setDescription((string) $faker->paragraphs($faker->numberBetween(1, 3), true)) // anglais
                 ->setPrice($faker->boolean(90) ? $price : null) // parfois null
-                ->setCurrency($faker->randomElement(['USD', 'EUR', 'GBP', null]))
+                ->setCurrency((string) $faker->randomElement(['USD', 'EUR', 'GBP', null]))
                 ->setReleaseDate($releasedAt) // Types::DATE_MUTABLE ⇒ DateTime
-                ->setStockStatus($faker->randomElement($stockStatuses))
-                ->setOs($faker->randomElement($oses))
-                ->setColor($faker->randomElement($colors))
-                ->setScreenSize($faker->randomElement($screenSizes))
-                ->setResolution($faker->randomElement($resolutions))
-                ->setBattery($faker->randomElement($batteries))
-                ->setCamera($faker->randomElement($cameras))
+                ->setStockStatus((string) $faker->randomElement($stockStatuses))
+                ->setOs((string) $faker->randomElement($oses))
+                ->setColor((string) $faker->randomElement($colors))
+                ->setScreenSize((string) $faker->randomElement($screenSizes))
+                ->setResolution((string) $faker->randomElement($resolutions))
+                ->setBattery((string) $faker->randomElement($batteries))
+                ->setCamera((string) $faker->randomElement($cameras))
                 ->setWeight($faker->boolean() ? $faker->numberBetween(120, 250) . ' g' : $faker->randomFloat(1, 0.9, 2.8) . ' kg')
                 ->setDimensions(sprintf(
                     '%s x %s x %s mm',
