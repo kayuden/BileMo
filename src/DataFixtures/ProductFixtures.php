@@ -11,7 +11,7 @@ class ProductFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        $faker = Factory::create('en_US'); 
+        $faker = Factory::create('en_US');
 
         $brands = ['Apex', 'Novatech', 'Skyline', 'Northwind', 'BluePeak', 'ZenWave', 'Lumina', 'Quantix'];
         $stockStatuses = ['in_stock', 'limited', 'preorder', 'out_of_stock'];
@@ -71,7 +71,7 @@ class ProductFixtures extends Fixture
                 ->setDescription($p['description'])
                 ->setPrice($p['price'])
                 ->setCurrency($p['currency'])
-                ->setReleaseDate($p['releaseDate']) // DateTime (mutable)
+                ->setReleaseDate($p['releaseDate'])
                 ->setStockStatus($p['stockStatus'])
                 ->setOs($p['os'])
                 ->setColor($p['color'])
@@ -91,24 +91,24 @@ class ProductFixtures extends Fixture
         // random
         for ($i = 0; $i < 18; $i++) {
             $brand = $faker->randomElement($brands);
-            $modelWord = ucfirst($faker->bothify('##?')); // ex: "42K"
+            $modelWord = ucfirst($faker->bothify('##?'));
             $family = $faker->randomElement(['Phone', 'Tab', 'Watch', 'Book', 'Display']);
             $name = sprintf('%s %s %s',(string) $brand,(string) $family,(string) $faker->randomElement(['Air', 'Plus', 'Pro', 'Max', 'Mini', 'Ultra']));
 
             $price = number_format($faker->randomFloat(2, 59, 2499), 2, '.', '');
 
-            $releasedAt = $faker->dateTimeBetween('-3 years', 'now'); // DateTime (mutable)
-            $createdAt = $faker->dateTimeBetween('-18 months', '-1 months'); // DateTime
-            $updatedAt = $faker->dateTimeBetween($createdAt, 'now');         // DateTime
+            $releasedAt = $faker->dateTimeBetween('-3 years', 'now');
+            $createdAt = $faker->dateTimeBetween('-18 months', '-1 months');
+            $updatedAt = $faker->dateTimeBetween($createdAt, 'now');
 
             $product = (new Product())
                 ->setName($name)
                 ->setBrand((string) $brand)
                 ->setModel($modelWord)
-                ->setDescription((string) $faker->paragraphs($faker->numberBetween(1, 3), true)) // anglais
-                ->setPrice($faker->boolean(90) ? $price : null) // parfois null
+                ->setDescription((string) $faker->paragraphs((string) $faker->numberBetween(1, 3), true))
+                ->setPrice($faker->boolean(90) ? $price : null)
                 ->setCurrency((string) $faker->randomElement(['USD', 'EUR', 'GBP', null]))
-                ->setReleaseDate($releasedAt) // Types::DATE_MUTABLE ⇒ DateTime
+                ->setReleaseDate($releasedAt)
                 ->setStockStatus((string) $faker->randomElement($stockStatuses))
                 ->setOs((string) $faker->randomElement($oses))
                 ->setColor((string) $faker->randomElement($colors))
