@@ -10,10 +10,10 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class ClientUserController extends AbstractController
 {
@@ -42,7 +42,8 @@ final class ClientUserController extends AbstractController
     }
 
     #[Route('/api/clients/{clientId}/users', name: 'createClientUser', methods: ['POST'])]
-    public function createClientUser(int $clientId, ClientRepository $clientRepository, Request $request, SerializerInterface $serializer, EntityManagerInterface $em): JsonResponse {
+    public function createClientUser(int $clientId, ClientRepository $clientRepository, Request $request, SerializerInterface $serializer, EntityManagerInterface $em,
+        UrlGeneratorInterface $urlGenerator): JsonResponse {
         $user = $serializer->deserialize($request->getContent(), User::class, 'json');
 
         $client = $clientRepository->find($clientId);
@@ -53,7 +54,9 @@ final class ClientUserController extends AbstractController
 
         $jsonUser = $serializer->serialize($user, 'json', ['groups' => 'getClientUsers']);
 
-        return new JsonResponse($jsonUser, Response::HTTP_CREATED, [], true);
+        $location = $urlGenerator->generate('detailClientUser', ['clientId' => $client->getId(), 'userId' => $user->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        return new JsonResponse($jsonUser, Response::HTTP_CREATED, ["Location" => $location], true);
     }
 
     #[Route('/api/clients/{clientId}/users/{userId}', name: 'deleteUser', methods: ['DELETE'])]
