@@ -6,7 +6,6 @@ use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Repository\ClientRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -14,6 +13,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 final class ClientUserController extends AbstractController
 {
@@ -43,7 +43,7 @@ final class ClientUserController extends AbstractController
 
     #[Route('/api/clients/{clientId}/users', name: 'createClientUser', methods: ['POST'])]
     public function createClientUser(int $clientId, ClientRepository $clientRepository, Request $request, SerializerInterface $serializer, EntityManagerInterface $em,
-        UrlGeneratorInterface $urlGenerator): JsonResponse {
+        UrlGeneratorInterface $urlGenerator, NormalizerInterface $normalizer): JsonResponse {
         $user = $serializer->deserialize($request->getContent(), User::class, 'json');
 
         $client = $clientRepository->find($clientId);
@@ -52,11 +52,16 @@ final class ClientUserController extends AbstractController
         $em->persist($user);
         $em->flush();
 
-        $jsonUser = $serializer->serialize($user, 'json', ['groups' => 'getClientUsers']);
+        $jsonUser = $normalizer->normalize($user, 'json', ['groups' => 'getClientUsers']);
+        $jsonClient = $normalizer->normalize($client, 'json', ['groups' => 'getClientUsers']);
+
+        $responseData = [
+            'user' => array_merge($jsonUser, ['client' => $jsonClient]),
+        ];
 
         $location = $urlGenerator->generate('detailClientUser', ['clientId' => $client->getId(), 'userId' => $user->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
 
-        return new JsonResponse($jsonUser, Response::HTTP_CREATED, ["Location" => $location], true);
+        return new JsonResponse($responseData, Response::HTTP_CREATED, ["Location" => $location]);
     }
 
     #[Route('/api/clients/{clientId}/users/{userId}', name: 'deleteUser', methods: ['DELETE'])]
