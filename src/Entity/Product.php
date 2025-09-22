@@ -2,9 +2,10 @@
 
 namespace App\Entity;
 
-use App\Repository\ProductRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation\Since;
+use App\Repository\ProductRepository;
 use Hateoas\Configuration\Annotation as Hateoas;
 
 /**
@@ -71,6 +72,7 @@ class Product
     private ?string $weight = null;
 
     #[ORM\Column(length: 100, nullable: true)]
+    #[Since("2.0")]
     private ?string $dimensions = null;
 
     #[ORM\Column(length: 255, nullable: true)]
