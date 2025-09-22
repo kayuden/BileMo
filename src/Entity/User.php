@@ -4,40 +4,61 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
-use Symfony\Component\Serializer\Annotation\Groups;
+use JMS\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Hateoas\Configuration\Annotation as Hateoas;
 
+/**
+ * @Hateoas\Relation(
+ *      "self",
+ *      href = @Hateoas\Route(
+ *          "detailClientUser",
+ *          parameters = { "userId" = "expr(object.getId())", "clientId" = "expr(object.getClient().getId())" }
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups={"getClientUsers"})
+ * )
+ *
+ * @Hateoas\Relation(
+ *      "delete",
+ *      href = @Hateoas\Route(
+ *          "deleteUser",
+ *          parameters = { "userId" = "expr(object.getId())", "clientId" = "expr(object.getClient().getId())" }
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups={"getClientUsers"})
+ * )
+ *
+ */
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups("getClientUsers")]
+    #[Groups(["getClientUsers"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
-    #[Groups("getClientUsers")]
+    #[Groups(["getClientUsers"])]
     #[Assert\NotBlank(message: "The first name is required")]
     #[Assert\Length(min:1, max: 100, minMessage: "The first name must be at least {{ limit }} characters long", maxMessage: "The first name cannot be longer than {{ limit }} characters.")]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 100)]
-    #[Groups("getClientUsers")]
+    #[Groups(["getClientUsers"])]
     #[Assert\NotBlank(message: "The last name is required")]
     #[Assert\Length(min:1, max: 100, minMessage: "The last name must be at least {{ limit }} characters long", maxMessage: "The last name cannot be longer than {{ limit }} characters.")]
     private ?string $lastName = null;
 
     #[ORM\Column(length: 20, nullable: true)]
-    #[Groups("getClientUsers")]
+    #[Groups(["getClientUsers"])]
     private ?string $phoneNumber = null;
 
     #[ORM\Column]
-    #[Groups("getClientUsers")]
+    #[Groups(["getClientUsers"])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
-    #[Groups("getClientUsers")]
+    #[Groups(["getClientUsers"])]
     private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'users')]
