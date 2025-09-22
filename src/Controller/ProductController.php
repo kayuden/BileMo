@@ -3,13 +3,15 @@
 namespace App\Controller;
 
 use App\Repository\ProductRepository;
+use App\Service\VersioningService;
+use JMS\Serializer\SerializerInterface;
+use JMS\Serializer\SerializationContext; 
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
-use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 final class ProductController extends AbstractController
@@ -33,11 +35,13 @@ final class ProductController extends AbstractController
     }
 
     #[Route('/api/products/{productId}', name: 'detailProduct', methods: ['GET'])]
-    public function getProductDetails(int $productId, ProductRepository $productRepository, SerializerInterface $serializer): JsonResponse
+    public function getProductDetails(int $productId, ProductRepository $productRepository, SerializerInterface $serializer, VersioningService $versioningService): JsonResponse
     {
         $product = $productRepository->find($productId);
         if ($product) {
-            $jsonProduct = $serializer->serialize($product, 'json');
+            $version = $versioningService->getVersion();
+            $context = SerializationContext::create()->setVersion($version);
+            $jsonProduct = $serializer->serialize($product, 'json', $context);
             return new JsonResponse($jsonProduct, Response::HTTP_OK, [], true);
         }
         return new JsonResponse(null, Response::HTTP_NOT_FOUND);
