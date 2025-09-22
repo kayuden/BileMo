@@ -6,7 +6,28 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
 use JMS\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Hateoas\Configuration\Annotation as Hateoas;
 
+/**
+ * @Hateoas\Relation(
+ *      "self",
+ *      href = @Hateoas\Route(
+ *          "detailClientUser",
+ *          parameters = { "userId" = "expr(object.getId())", "clientId" = "expr(object.getClient().getId())" }
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups={"getClientUsers"})
+ * )
+ *
+ * @Hateoas\Relation(
+ *      "delete",
+ *      href = @Hateoas\Route(
+ *          "deleteUser",
+ *          parameters = { "userId" = "expr(object.getId())", "clientId" = "expr(object.getClient().getId())" }
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups={"getClientUsers"})
+ * )
+ *
+ */
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User
 {
