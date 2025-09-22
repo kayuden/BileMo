@@ -3,13 +3,14 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use App\Entity\Client;
-use App\Repository\ClientRepository;
 use App\Repository\UserRepository;
+use App\Repository\ClientRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -56,10 +57,33 @@ final class ClientUserController extends AbstractController
     }
 
     #[Route('/api/clients/{clientId}/users/{userId}', name: 'deleteUser', methods: ['DELETE'])]
-    public function deleteUser(User $userId, EntityManagerInterface $em): JsonResponse {
+    public function deleteUser(int $clientId, User $userId, EntityManagerInterface $em): JsonResponse {
+        /** @var \App\Entity\Client $connectedClient */
+        $connectedClient = $this->getUser();
+
+        if (!$connectedClient) {
+            return new JsonResponse(['error' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        if ($connectedClient->getId() !== $clientId) {
+            return new JsonResponse(['error' => 'Forbidden'], Response::HTTP_FORBIDDEN);
+        }
+
+        if ($userId->getClient()->getId() !== $connectedClient->getId()) {
+            return new JsonResponse(['error' => 'User doesn\'t belong to this client'], Response::HTTP_FORBIDDEN);
+        }
+
         $em->remove($userId);
         $em->flush();
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
+
+    // #[Route('/api/clients/{clientId}/users/{userId}', name: 'deleteUser', methods: ['DELETE'])]
+    // public function deleteUser(User $userId, EntityManagerInterface $em): JsonResponse {
+    //     $em->remove($userId);
+    //     $em->flush();
+
+    //     return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    // }
 }
