@@ -5,14 +5,15 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Repository\ClientRepository;
+use JMS\Serializer\SerializerInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use JMS\Serializer\SerializationContext;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
-use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
@@ -32,7 +33,8 @@ final class ClientUserController extends AbstractController
             return $userRepository->findBy(['client' => $clientId]);
         });
         
-        $jsonUsers = $serializer->serialize($users, 'json', ['groups' => 'getClientUsers']);
+        $context = SerializationContext::create()->setGroups(["getClientUsers"]);
+        $jsonUsers = $serializer->serialize($users, 'json', $context);
         return new JsonResponse($jsonUsers, Response::HTTP_OK, [], true);
     }
 
@@ -45,7 +47,8 @@ final class ClientUserController extends AbstractController
         ]);
 
         if ($user) {
-            $jsonProduct = $serializer->serialize($user, 'json', ['groups' => 'getClientUsers']);
+            $context = SerializationContext::create()->setGroups(["getClientUsers"]);
+            $jsonProduct = $serializer->serialize($user, 'json', $context);
             return new JsonResponse($jsonProduct, Response::HTTP_OK, [], true);
         }
         return new JsonResponse(null, Response::HTTP_NOT_FOUND);

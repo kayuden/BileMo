@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ClientRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
-use Symfony\Component\Serializer\Annotation\Groups;
+use JMS\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
@@ -19,11 +19,11 @@ class Client implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups("getClientUsers")]
+    #[Groups(["getClientUsers"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique:true)]
-    #[Groups("getClientUsers")]
+    #[Groups(["getClientUsers"])]
     private ?string $email = null;
 
     /**
@@ -39,19 +39,19 @@ class Client implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(length: 180)]
-    #[Groups("getClientUsers")]
+    #[Groups(["getClientUsers"])]
     private ?string $name = null;
 
     #[ORM\Column(enumType: Status::class)]
-    #[Groups("getClientUsers")]
+    #[Groups(["getClientUsers"])]
     private ?Status $status = Status::ACTIVE;
 
     #[ORM\Column]
-    #[Groups("getClientUsers")]
+    #[Groups(["getClientUsers"])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
-    #[Groups("getClientUsers")]
+    #[Groups(["getClientUsers"])]
     private ?\DateTimeImmutable $updatedAt = null;
 
     /**
