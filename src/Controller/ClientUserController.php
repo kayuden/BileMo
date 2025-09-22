@@ -4,8 +4,10 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Entity\Client;
+use App\Repository\ClientRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -38,10 +40,20 @@ final class ClientUserController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NOT_FOUND);
     }
 
-    // #[Route('/api/clients/{clientId}/users/{userId}', name: 'deleteUser', methods: [''])]
-    // public function (): JsonResponse {
-        
-    // }
+    #[Route('/api/clients/{clientId}/users', name: 'createClientUser', methods: ['POST'])]
+    public function createClientUser(int $clientId, ClientRepository $clientRepository, Request $request, SerializerInterface $serializer, EntityManagerInterface $em): JsonResponse {
+        $user = $serializer->deserialize($request->getContent(), User::class, 'json');
+
+        $client = $clientRepository->find($clientId);
+        $user->setClient($client);
+
+        $em->persist($user);
+        $em->flush();
+
+        $jsonUser = $serializer->serialize($user, 'json', ['groups' => 'getClientUsers']);
+
+        return new JsonResponse($jsonUser, Response::HTTP_CREATED, [], true);
+    }
 
     #[Route('/api/clients/{clientId}/users/{userId}', name: 'deleteUser', methods: ['DELETE'])]
     public function deleteUser(User $userId, EntityManagerInterface $em): JsonResponse {

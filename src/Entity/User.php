@@ -13,7 +13,7 @@ class User
     #[ORM\GeneratedValue]
     #[ORM\Column]
     #[Groups("getClientUsers")]
-    private ?int $id = null;
+    private ?int $id;
 
     #[ORM\Column(length: 100)]
     #[Groups("getClientUsers")]
@@ -38,6 +38,12 @@ class User
     #[ORM\ManyToOne(inversedBy: 'users')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Client $client = null;
+
+    public function __construct()
+    {
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {
