@@ -11,9 +11,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 final class ClientUserController extends AbstractController
 {
@@ -43,11 +44,17 @@ final class ClientUserController extends AbstractController
 
     #[Route('/api/clients/{clientId}/users', name: 'createClientUser', methods: ['POST'])]
     public function createClientUser(int $clientId, ClientRepository $clientRepository, Request $request, SerializerInterface $serializer, EntityManagerInterface $em,
-        UrlGeneratorInterface $urlGenerator, NormalizerInterface $normalizer): JsonResponse {
+        UrlGeneratorInterface $urlGenerator, NormalizerInterface $normalizer, ValidatorInterface $validator): JsonResponse {
         $user = $serializer->deserialize($request->getContent(), User::class, 'json');
 
         $client = $clientRepository->find($clientId);
         $user->setClient($client);
+
+        // errors check
+        $errors = $validator->validate($user);
+        if ($errors->count() > 0) {
+            return new JsonResponse($serializer->serialize($errors, 'json'), JsonResponse::HTTP_BAD_REQUEST, [], true);
+        }
 
         $em->persist($user);
         $em->flush();
