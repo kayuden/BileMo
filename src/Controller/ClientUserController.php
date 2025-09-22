@@ -6,10 +6,12 @@ use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Repository\ClientRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -19,9 +21,16 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 final class ClientUserController extends AbstractController
 {
     #[Route('/api/clients/{clientId}/users', name: 'listClientUsers', methods: ['GET'])]
-    public function getClientUsers(int $clientId, UserRepository $userRepository, SerializerInterface $serializer): JsonResponse
+    public function getClientUsers(int $clientId, UserRepository $userRepository, SerializerInterface $serializer, TagAwareCacheInterface $cache): JsonResponse
     {
-        $users = $userRepository->findBy(['client' => $clientId]);
+        $idCache = "getClientUsers-" . $clientId;
+
+
+        $users = $cache->get($idCache, function (ItemInterface $item) use ($userRepository, $clientId) {
+            echo ("THE ELEMENT ISN'T YET CACHED ! \n");
+            $item->tag("clientUsersCache");
+            return $userRepository->findBy(['client' => $clientId]);
+        });
         
         $jsonUsers = $serializer->serialize($users, 'json', ['groups' => 'getClientUsers']);
         return new JsonResponse($jsonUsers, Response::HTTP_OK, [], true);
@@ -72,7 +81,7 @@ final class ClientUserController extends AbstractController
     }
 
     #[Route('/api/clients/{clientId}/users/{userId}', name: 'deleteUser', methods: ['DELETE'])]
-    public function deleteUser(int $clientId, User $userId, EntityManagerInterface $em): JsonResponse {
+    public function deleteUser(int $clientId, User $userId, EntityManagerInterface $em, TagAwareCacheInterface $cache): JsonResponse {
         /** @var \App\Entity\Client $connectedClient */
         $connectedClient = $this->getUser();
 
@@ -88,6 +97,7 @@ final class ClientUserController extends AbstractController
             return new JsonResponse(['error' => 'User doesn\'t belong to this client'], Response::HTTP_FORBIDDEN);
         }
 
+        $cache->invalidateTags(["clientUsersCache"]);
         $em->remove($userId);
         $em->flush();
 
