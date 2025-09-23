@@ -83,6 +83,9 @@ final class ClientUserController extends AbstractController
         $user = $serializer->deserialize($request->getContent(), User::class, 'json');
 
         $client = $clientRepository->find($clientId);
+        if (!$client) {
+            return new JsonResponse(['error' => 'Client not found'], Response::HTTP_NOT_FOUND);
+        }
         $user->setClient($client);
 
         // errors check
@@ -121,7 +124,7 @@ final class ClientUserController extends AbstractController
         }
 
         $client = $userId->getClient();
-        if ($client->getId() !== $connectedClient->getId()) {
+        if ($client === null || $client->getId() !== $connectedClient->getId()) {
             return new JsonResponse(['error' => 'User doesn\'t belong to this client'], Response::HTTP_FORBIDDEN);
         }
 
