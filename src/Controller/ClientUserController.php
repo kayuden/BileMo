@@ -77,8 +77,44 @@ final class ClientUserController extends AbstractController
 
     #[Route('/api/clients/{clientId}/users', name: 'createClientUser', methods: ['POST'])]
     #[OA\Tag(name: 'Users')]
+    #[OA\Parameter(
+        name: 'clientId',
+        in: 'path',
+        required: true,
+        schema: new OA\Schema(type: 'integer')
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            // Décrit le schéma du body à partir de ton entité et des groupes "write"
+            ref: new Model(type: User::class, groups: ['user:write']),
+            // (Optionnel) ajoute un exemple concret
+            examples: [
+                new OA\Examples(example: 'payload', summary: 'Exemple minimal', value: [
+                    'firstName' => 'Jane',
+                    'lastName' => 'Doe',
+                    'phoneNumber' => '+33784914616!'
+                ])
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 201,
+        description: 'User created',
+        content: new OA\JsonContent(
+            type: 'object',
+            properties: [
+                new OA\Property(
+                    property: 'user',
+                    ref: new Model(type: User::class, groups: ['getClientUsers'])
+                )
+            ]
+        )
+    )]
+    #[OA\Response(response: 400, description: 'Validation errors')]
+    #[OA\Response(response: 404, description: 'Client not found')]
     public function createClientUser(int $clientId, ClientRepository $clientRepository, Request $request, SerializerInterface $serializer, EntityManagerInterface $em,
-        UrlGeneratorInterface $urlGenerator, NormalizerInterface $normalizer, ValidatorInterface $validator): JsonResponse {
+        UrlGeneratorInterface $urlGenerator, ValidatorInterface $validator): JsonResponse {
         /** @var User $user */ 
         $user = $serializer->deserialize($request->getContent(), User::class, 'json');
 
@@ -97,16 +133,13 @@ final class ClientUserController extends AbstractController
         $em->persist($user);
         $em->flush();
 
-        $jsonUser = $normalizer->normalize($user, 'json', ['groups' => 'getClientUsers']);
-        $jsonClient = $normalizer->normalize($client, 'json', ['groups' => 'getClientUsers']);
+        $context = SerializationContext::create()->setGroups(["getClientUsers"])->enableMaxDepthChecks();
 
-        $responseData = [
-            'user' => array_merge((array) $jsonUser, ['client' => $jsonClient]),
-        ];
+        $json = $serializer->serialize(['user' => $user], 'json', $context);
 
         $location = $urlGenerator->generate('detailClientUser', ['clientId' => $client->getId(), 'userId' => $user->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
 
-        return new JsonResponse($responseData, Response::HTTP_CREATED, ["Location" => $location]);
+        return new JsonResponse($json, Response::HTTP_CREATED, ["Location" => $location], true);
     }
 
     #[Route('/api/clients/{clientId}/users/{userId}', name: 'deleteUser', methods: ['DELETE'])]

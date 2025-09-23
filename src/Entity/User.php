@@ -29,6 +29,7 @@ use Hateoas\Configuration\Annotation as Hateoas;
  *
  */
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class User
 {
     #[ORM\Id]
@@ -63,11 +64,27 @@ class User
 
     #[ORM\ManyToOne(inversedBy: 'users')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(["getClientUsers"])]
     private ?Client $client = null;
 
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
+    }
+
+    #[ORM\PrePersist]
+    public function onPrePersist(): void
+    {
+        if ($this->createdAt === null) {
+            $this->createdAt = new \DateTimeImmutable();
+        }
+        $this->updatedAt = new \DateTimeImmutable();
+    }
+
+    #[ORM\PreUpdate]
+    public function onPreUpdate(): void
+    {
         $this->updatedAt = new \DateTimeImmutable();
     }
 

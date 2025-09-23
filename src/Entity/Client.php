@@ -11,6 +11,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use JMS\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use JMS\Serializer\Annotation as Serializer;
 
 #[ORM\Entity(repositoryClass: ClientRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
@@ -42,9 +43,9 @@ class Client implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(["getClientUsers"])]
     private ?string $name = null;
 
-    #[ORM\Column(enumType: Status::class)]
-    #[Groups(["getClientUsers"])]
-    private ?Status $status = Status::ACTIVE;
+    #[Serializer\Accessor(getter: "getStatusString")]
+    #[Serializer\Groups(["getClientUsers"])]
+    private ?\App\Enum\Status $status = null;
 
     #[ORM\Column]
     #[Groups(["getClientUsers"])]
@@ -172,9 +173,9 @@ class Client implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getStatus(): ?Status
+    public function getStatusString(): ?string
     {
-        return $this->status;
+        return $this->status?->value ?? $this->status?->name ?? null;
     }
 
     public function setStatus(Status $status): static
