@@ -76,6 +76,7 @@ class Product
     private ?string $dimensions = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Since("2.0")]
     private ?string $imageUrl = null;
 
     #[ORM\Column]
