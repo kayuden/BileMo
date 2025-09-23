@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
  
 class VersioningService
 {
-    private $requestStack;
+    private RequestStack $requestStack;
     private string $defaultVersion;
  
     /**
@@ -36,9 +36,6 @@ class VersioningService
         $version = $this->defaultVersion;
  
         $request = $this->requestStack->getCurrentRequest();
-        if (!$request instanceof Request) {
-            return $version; // no current request
-        }
         $accept = (string) $request->headers->get('Accept');
         // Récupération du numéro de version dans la chaîne  de caractères du accept :
         // exemple "application/json; test=bidule; version=2.0" => 2.0

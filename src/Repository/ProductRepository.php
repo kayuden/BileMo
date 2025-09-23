@@ -3,9 +3,8 @@
 namespace App\Repository;
 
 use App\Entity\Product;
-use Doctrine\ORM\Query;
-use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<Product>
@@ -20,10 +19,11 @@ class ProductRepository extends ServiceEntityRepository
     /**
      * @return Product[]
      */
-    public function findAllWithPagination(int $page, int $limit) {
+    public function findAllWithPagination(int $page, int $limit): array {
         $qb = $this->createQueryBuilder('b')
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit);
-        return $qb->getQuery()->getResult(Query::HYDRATE_OBJECT);
+        /** @var Product[] $result */
+        return $qb->getQuery()->getResult();
     }
 }
