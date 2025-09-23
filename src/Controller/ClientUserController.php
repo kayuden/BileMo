@@ -98,7 +98,7 @@ final class ClientUserController extends AbstractController
         $jsonClient = $normalizer->normalize($client, 'json', ['groups' => 'getClientUsers']);
 
         $responseData = [
-            'user' => array_merge($jsonUser, ['client' => $jsonClient]),
+            'user' => array_merge((array) $jsonUser, ['client' => $jsonClient]),
         ];
 
         $location = $urlGenerator->generate('detailClientUser', ['clientId' => $client->getId(), 'userId' => $user->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
