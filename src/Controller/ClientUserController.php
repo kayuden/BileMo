@@ -79,6 +79,7 @@ final class ClientUserController extends AbstractController
     #[OA\Tag(name: 'Users')]
     public function createClientUser(int $clientId, ClientRepository $clientRepository, Request $request, SerializerInterface $serializer, EntityManagerInterface $em,
         UrlGeneratorInterface $urlGenerator, NormalizerInterface $normalizer, ValidatorInterface $validator): JsonResponse {
+        /** @var User $user */ 
         $user = $serializer->deserialize($request->getContent(), User::class, 'json');
 
         $client = $clientRepository->find($clientId);

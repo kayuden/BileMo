@@ -44,14 +44,16 @@ final class ProductController extends AbstractController
     #[OA\Tag(name: 'Products')]
     public function getAllProducts(ProductRepository $productRepository, SerializerInterface $serializer, Request $request, TagAwareCacheInterface $cache): JsonResponse
     {
-        $page = $request->get('page', 1);
-        $limit = $request->get('limit', 3);
+        $page = (int) $request->get('page', 1);
+        $limit = (int) $request->get('limit', 3);
 
         $idCache = "getAllProducts-" . $page . "-" . $limit;
 
         $productList = $cache->get($idCache, function (ItemInterface $item) use ($productRepository, $page, $limit) {
             echo ("THE ELEMENT ISN'T YET CACHED ! \n");
             $item->tag("productsCache");
+            /** @var int $page */
+            /** @var int $limit */
             return $productRepository->findAllWithPagination($page, $limit);
         });
         
