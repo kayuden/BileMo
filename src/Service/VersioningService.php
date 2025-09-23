@@ -4,7 +4,6 @@
 // Création d'un service Symfony pour pouvoir récupérer la version contenue dans le champ "accept" de la requête HTTP.
 namespace App\Service;
  
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
  

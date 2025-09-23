@@ -16,10 +16,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Nelmio\ApiDocBundle\Attribute\Model;
-use Nelmio\ApiDocBundle\Attribute\Security;
 use OpenApi\Attributes as OA;
 
 final class ClientUserController extends AbstractController
@@ -86,11 +84,10 @@ final class ClientUserController extends AbstractController
     #[OA\RequestBody(
         required: true,
         content: new OA\JsonContent(
-            // Décrit le schéma du body à partir de ton entité et des groupes "write"
             ref: new Model(type: User::class, groups: ['user:write']),
-            // (Optionnel) ajoute un exemple concret
+            // example
             examples: [
-                new OA\Examples(example: 'payload', summary: 'Exemple minimal', value: [
+                new OA\Examples(example: 'payload', summary: 'Example', value: [
                     'firstName' => 'Jane',
                     'lastName' => 'Doe',
                     'phoneNumber' => '+33784914616!'
