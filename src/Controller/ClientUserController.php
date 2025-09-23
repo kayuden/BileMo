@@ -18,10 +18,22 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use Nelmio\ApiDocBundle\Attribute\Security;
+use OpenApi\Attributes as OA;
 
 final class ClientUserController extends AbstractController
 {
     #[Route('/api/clients/{clientId}/users', name: 'listClientUsers', methods: ['GET'])]
+    #[OA\Response(
+        response: 200,
+        description: 'Returns the list of registered users associated with a client',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type:User::class, groups: ['getClientUsers']))
+        )
+    )]
+    #[OA\Tag(name: 'Users')]
     public function getClientUsers(int $clientId, UserRepository $userRepository, SerializerInterface $serializer, TagAwareCacheInterface $cache): JsonResponse
     {
         $idCache = "getClientUsers-" . $clientId;
@@ -39,6 +51,15 @@ final class ClientUserController extends AbstractController
     }
 
     #[Route('/api/clients/{clientId}/users/{userId}', name: 'detailClientUser', methods: ['GET'])]
+    #[OA\Response(
+        response: 200,
+        description: 'Returns the details of a registered user linked to a client',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type:User::class, groups: ['getClientUsers']))
+        )
+    )]
+    #[OA\Tag(name: 'Users')]
     public function getClientUserDetails(int $clientId, int $userId, UserRepository $userRepository, SerializerInterface $serializer): JsonResponse
     {
         $user = $userRepository->findOneBy([
@@ -55,6 +76,7 @@ final class ClientUserController extends AbstractController
     }
 
     #[Route('/api/clients/{clientId}/users', name: 'createClientUser', methods: ['POST'])]
+    #[OA\Tag(name: 'Users')]
     public function createClientUser(int $clientId, ClientRepository $clientRepository, Request $request, SerializerInterface $serializer, EntityManagerInterface $em,
         UrlGeneratorInterface $urlGenerator, NormalizerInterface $normalizer, ValidatorInterface $validator): JsonResponse {
         $user = $serializer->deserialize($request->getContent(), User::class, 'json');
@@ -84,6 +106,7 @@ final class ClientUserController extends AbstractController
     }
 
     #[Route('/api/clients/{clientId}/users/{userId}', name: 'deleteUser', methods: ['DELETE'])]
+    #[OA\Tag(name: 'Users')]
     public function deleteUser(int $clientId, User $userId, EntityManagerInterface $em, TagAwareCacheInterface $cache): JsonResponse {
         /** @var \App\Entity\Client $connectedClient */
         $connectedClient = $this->getUser();
