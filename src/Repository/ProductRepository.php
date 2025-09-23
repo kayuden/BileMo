@@ -21,6 +21,6 @@ class ProductRepository extends ServiceEntityRepository
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit);
             
-        return $qb->getQuery()->getResult(Product::class);
+        return $qb->getQuery()->getResult();
     }
 }
