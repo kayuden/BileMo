@@ -4,8 +4,9 @@
 // Création d'un service Symfony pour pouvoir récupérer la version contenue dans le champ "accept" de la requête HTTP.
 namespace App\Service;
  
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
  
 class VersioningService
 {
@@ -35,7 +36,10 @@ class VersioningService
         $version = $this->defaultVersion;
  
         $request = $this->requestStack->getCurrentRequest();
-        $accept = $request->headers->get('Accept');
+        if (!$request instanceof Request) {
+            return $version; // no current request
+        }
+        $accept = (string) $request->headers->get('Accept');
         // Récupération du numéro de version dans la chaîne  de caractères du accept :
         // exemple "application/json; test=bidule; version=2.0" => 2.0
         $entete = explode(';', $accept);

@@ -17,7 +17,7 @@ class ProductRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return Product[] Returns an array of Product objects
+     * @return Product[]
      */
     public function findAllWithPagination(int $page, int $limit) {
         $qb = $this->createQueryBuilder('b')
