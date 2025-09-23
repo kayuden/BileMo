@@ -120,7 +120,8 @@ final class ClientUserController extends AbstractController
             return new JsonResponse(['error' => 'Forbidden'], Response::HTTP_FORBIDDEN);
         }
 
-        if ($userId->getClient()->getId() !== $connectedClient->getId()) {
+        $client = $userId->getClient();
+        if ($client->getId() !== $connectedClient->getId()) {
             return new JsonResponse(['error' => 'User doesn\'t belong to this client'], Response::HTTP_FORBIDDEN);
         }
 
