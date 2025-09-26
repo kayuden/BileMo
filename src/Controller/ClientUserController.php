@@ -435,7 +435,7 @@ final class ClientUserController extends AbstractController
             type: 'object',
             properties: [
                 new OA\Property(property: 'status', type: 'integer', example: 403),
-                new OA\Property(property: 'message', type: 'string', example: 'Access denied')
+                new OA\Property(property: 'message', type: 'string', example: 'You are not allowed to access this resource')
             ]
         )
     )]
