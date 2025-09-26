@@ -481,7 +481,7 @@ final class ClientUserController extends AbstractController
             return new JsonResponse(
                 [
                     'statut' => Response::HTTP_FORBIDDEN,
-                    'error' => 'Forbiden'
+                    'error' => 'You are not allowed to access this resource'
                 ], 
                 Response::HTTP_FORBIDDEN);
         }
